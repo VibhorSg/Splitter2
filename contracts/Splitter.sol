@@ -67,5 +67,10 @@ contract Splitter {
     isRunning = false;
   }
 
+  function resume() public returns(bool) {
+    require(msg.sender == owner);
+    isRunning = true;
+  }
+
   function() public {}
 }
