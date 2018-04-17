@@ -3,33 +3,44 @@ pragma solidity ^ 0.4.17;
 contract Splitter {
 
   address public owner;
+  bool public isRunning;
   mapping(address => uint) public balances;
 
-  event LogSplitFunds(address indexed sender, address indexed recipient1, address indexed recipient2,
-                      uint amount);
-  event LogWidrawFunds(address indexed recipient, uint amount);                    
+  event LogSplitFunds(address indexed sender, address indexed recipient1,
+                      address indexed recipient2, uint amount);
+  event LogWidrawFunds(address indexed recipient, uint amount);
 
-  function Splitter() public { owner = msg.sender;}
+  function Splitter() public {
+    owner = msg.sender;
+    isRunning = true;
+  }
 
-  function splitFunds(address _recipient1, address _recipient2) public payable
-  returns(bool) {
+  modifier onlyIfRunning {
+    require(isRunning);
+    _;
+  }
+
+  function splitFunds(address _recipient1, address _recipient2)
+      onlyIfRunning public payable
+      returns(bool) {
     require(msg.value > 0);
-    if (!isRecipientsValid(_recipient1, _recipient2)) {
-      revert();
-    }
+    require(isRecipientsValid(_recipient1, _recipient2));
 
     uint amountHalf = msg.value / 2;
     uint remainder = msg.value % 2;
 
     balances[_recipient1] = amountHalf;
-    balances[_recipient2] = amountHalf + remainder;
+    balances[_recipient2] = amountHalf;
+    if (remainder > 0)
+      balances[_recipient2] += remainder;
 
     LogSplitFunds(msg.sender, _recipient1, _recipient2, msg.value);
     return true;
   }
 
   function isRecipientsValid(address _recipient1,
-                             address _recipient2) private view returns(bool) {
+                             address _recipient2) private view
+  returns(bool) {
     if (_recipient1 == _recipient2)
       return false;
     if (owner == _recipient1)
@@ -42,18 +53,18 @@ contract Splitter {
     return true;
   }
 
-  function withdrawFunds() public returns(bool) {
+  function withdrawFunds() public onlyIfRunning returns(bool) {
     require(balances[msg.sender] != 0);
-    LogWidrawFunds(msg.sender, balances[msg.sender]);
-    msg.sender.transfer(balances[msg.sender]);
+    uint amount = balances[msg.sender];
     balances[msg.sender] = 0;
+    LogWidrawFunds(msg.sender, amount);
+    msg.sender.transfer(amount);
     return true;
   }
 
-  function killMe() public returns(bool) {
+  function pause() public onlyIfRunning returns(bool) {
     require(msg.sender == owner);
-    selfdestruct(owner);
-    return true;
+    isRunning = false;
   }
 
   function() public {}
