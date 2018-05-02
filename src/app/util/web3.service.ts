@@ -1,8 +1,8 @@
 declare let require: any;
 
-import {Injectable} from '@angular/core';
+import { Injectable } from '@angular/core';
 const contract = require('truffle-contract');
-import {Subject} from 'rxjs/Rx';
+import { Subject } from 'rxjs/Rx';
 const Web3 = require('web3');
 
 declare let window: any;
@@ -11,10 +11,7 @@ declare let window: any;
 export class Web3Service {
   public web3: any;
   public currentProvider: any
-  private accounts: string[];
-  public ready = false;
-  public MetaCoin: any;
-  public accountsObservable = new Subject<string[]>();
+  public startingBlock: any
   public userAccounts: string[]
 
   constructor() {
@@ -40,8 +37,12 @@ export class Web3Service {
       // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
       this.web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:7545'));
     }
-    this.web3.eth.getAccounts().then(async accounts=>{
+    this.web3.eth.getAccounts().then(async accounts => {
       this.userAccounts = [...accounts]
+    })
+
+    this.web3.eth.getBlockNumber().then(async block => {
+      this.startingBlock = block
     })
   }
 

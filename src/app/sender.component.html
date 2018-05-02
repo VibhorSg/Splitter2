@@ -1,0 +1,143 @@
+<mat-card>
+  <mat-card-title>
+    <h2>Splitter contract user interface</h2>
+  </mat-card-title>
+
+  <mat-card-content>
+    <form>
+
+      <mat-form-field style="width: 35%;">
+        <mat-select placeholder="Sender account" (change)="senderChanged()" [(ngModel)]="senderAccount" name="account">
+          <mat-option *ngFor="let account of contractService.userAccounts" [value]="account">
+            {{ account }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field>
+        <input [(ngModel)]="senderBalance" name="senderBalance" readonly="readonly" matInput placeholder="Balance (ether)" type="text">
+      </mat-form-field>
+
+      <mat-form-field>
+        <input [(ngModel)]="amountToSend" name="amount" matInput placeholder="Amount to split (ether)" type="text">
+      </mat-form-field>
+
+      <br>
+
+      <mat-form-field style="width: 35%;">
+        <input matInput placeholder="Receiver1 account" [(ngModel)]="receiver1Account" name="account" value="">
+      </mat-form-field>
+
+      <mat-form-field>
+        <input [(ngModel)]="receiver1Balance" name="receiver1Balance" readonly="readonly" matInput placeholder="Balance (ether)"
+          type="text">
+      </mat-form-field>
+
+      <button mat-button (click)="getReceiver1Balance()" mat-raised-button color="primary">Get balance</button>
+
+      <br>
+
+      <mat-form-field style="width: 35%;">
+        <input matInput placeholder="Receiver2 account" [(ngModel)]="receiver2Account" name="account" value="">
+      </mat-form-field>
+
+      <mat-form-field>
+        <input [(ngModel)]="receiver2Balance" name="receiver2Balance" readonly="readonly" matInput placeholder="Balance (ether)"
+          type="number">
+      </mat-form-field>
+
+      <button mat-button (click)="getReceiver2Balance()" mat-raised-button color="primary">Get balance</button>
+
+      <br>
+      <br>
+      <button mat-button (click)="split()" mat-raised-button color="primary">Please split amount</button>
+      <button mat-button (click)="getCurrentAccount()" mat-raised-button color="primary">Press to get Metamask account</button>
+    </form>
+  </mat-card-content>
+
+  <mat-card-content>
+    <mat-card-title>
+      <p>SplitFunds logs:</p>
+    </mat-card-title>
+
+    <div class="example-container mat-elevation-z8">
+      <mat-table #table [dataSource]="dataSource">
+
+        <!--- Note that these columns can be defined in any order.
+                        The actual rendered columns are set as a property on the row definition" -->
+
+        <ng-container matColumnDef="BlockNo">
+          <mat-header-cell *matHeaderCellDef> BlockNo </mat-header-cell>
+          <mat-cell *matCellDef="let eventLog"> {{eventLog.BlockNo}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="Sender">
+          <mat-header-cell *matHeaderCellDef> Sender </mat-header-cell>
+          <mat-cell *matCellDef="let eventLog"> {{eventLog.Sender}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="Recipient1">
+          <mat-header-cell *matHeaderCellDef> Recipient1 </mat-header-cell>
+          <mat-cell *matCellDef="let eventLog"> {{eventLog.Recipient1}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="Recipient2">
+          <mat-header-cell *matHeaderCellDef> Recipient2 </mat-header-cell>
+          <mat-cell *matCellDef="let eventLog"> {{eventLog.Recipient2}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="Amount">
+          <mat-header-cell *matHeaderCellDef> Amount(Ether) </mat-header-cell>
+          <mat-cell *matCellDef="let eventLog"> {{eventLog.Amount}} </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+      </mat-table>
+
+      <mat-paginator #paginator [pageSize]="10" [pageSizeOptions]="[10, 20, 30]" [showFirstLastButtons]="true">
+      </mat-paginator>
+
+    </div>
+
+  </mat-card-content>
+
+  <mat-card-content>
+    <mat-card-title>
+      <p>Funds transfered logs:</p>
+    </mat-card-title>
+
+    <div class="example-container mat-elevation-z8">
+      <mat-table #table [dataSource]="widrawDataSource">
+
+        <!--- Note that these columns can be defined in any order.
+                        The actual rendered columns are set as a property on the row definition" -->
+
+        <ng-container matColumnDef="BlockNo">
+          <mat-header-cell *matHeaderCellDef> BlockNo </mat-header-cell>
+          <mat-cell *matCellDef="let eventLog"> {{eventLog.BlockNo}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="Recipient">
+          <mat-header-cell *matHeaderCellDef> Recipient </mat-header-cell>
+          <mat-cell *matCellDef="let eventLog"> {{eventLog.Recipient}} </mat-cell>
+        </ng-container>
+
+        <ng-container matColumnDef="Amount">
+          <mat-header-cell *matHeaderCellDef> Amount(Ether) </mat-header-cell>
+          <mat-cell *matCellDef="let eventLog"> {{eventLog.Amount}} </mat-cell>
+        </ng-container>
+
+        <mat-header-row *matHeaderRowDef="withdrawalColumns"></mat-header-row>
+        <mat-row *matRowDef="let row; columns: withdrawalColumns;"></mat-row>
+      </mat-table>
+
+      <mat-paginator #withdrawPaginator [pageSize]="10" [pageSizeOptions]="[10, 20, 30]" [showFirstLastButtons]="true">
+      </mat-paginator>
+
+    </div>
+
+  </mat-card-content>
+
+</mat-card>
+<router-outlet></router-outlet>

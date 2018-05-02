@@ -1,4 +1,4 @@
-pragma solidity ^ 0.4.17;
+pragma solidity ^ 0.4.21;
 
 contract Splitter {
 
@@ -10,7 +10,7 @@ contract Splitter {
                       address indexed recipient2, uint amount);
   event LogWidrawFunds(address indexed recipient, uint amount);
 
-  function Splitter() public {
+  constructor() public {
     owner = msg.sender;
     isRunning = true;
   }
@@ -24,7 +24,7 @@ contract Splitter {
       onlyIfRunning public payable
       returns(bool) {
     require(msg.value > 0);
-    require(isRecipientsValid(_recipient1, _recipient2));
+    require(isRecipientsValid(msg.sender, _recipient1, _recipient2));
 
     uint amountHalf = msg.value / 2;
     uint remainder = msg.value % 2;
@@ -34,18 +34,18 @@ contract Splitter {
     if (remainder > 0)
       balances[_recipient2] += remainder;
 
-    LogSplitFunds(msg.sender, _recipient1, _recipient2, msg.value);
+    emit LogSplitFunds(msg.sender, _recipient1, _recipient2, msg.value);
     return true;
   }
 
-  function isRecipientsValid(address _recipient1,
-                             address _recipient2) private view
+  function isRecipientsValid(address _sender, address _recipient1,
+                             address _recipient2) public pure
   returns(bool) {
     if (_recipient1 == _recipient2)
       return false;
-    if (owner == _recipient1)
+    if (_sender == _recipient1)
       return false;
-    if (owner == _recipient2)
+    if (_sender == _recipient2)
       return false;
     if ((_recipient1 == address(0x00)) || (_recipient2 == address(0x00)))
       return false;
@@ -57,7 +57,7 @@ contract Splitter {
     require(balances[msg.sender] != 0);
     uint amount = balances[msg.sender];
     balances[msg.sender] = 0;
-    LogWidrawFunds(msg.sender, amount);
+    emit LogWidrawFunds(msg.sender, amount);
     msg.sender.transfer(amount);
     return true;
   }
