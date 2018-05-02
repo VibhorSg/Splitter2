@@ -60,6 +60,13 @@ export class RecipientComponent {
         })
     }
 
+    updateRecipientBalance()
+    {
+        this.web3Service.web3.eth.getBalance(this.recipientAccount).then(async balance => {
+            this.recipientBalance = (Number(balance) / this.oneEther).toString()
+        })
+    }
+
     withdrawAmount()
     {
         let currentGasPrice: any
@@ -83,6 +90,7 @@ export class RecipientComponent {
                 console.log('Received widrawFunds')
                 console.log(JSON.stringify(event))
                 var obj = { BlockNo: event.blockNumber, Recipient: event.args.recipient, Amount: event.args.amount / this.oneEther }
+                this.updateRecipientBalance()
                 this.updateWithdrawalTable(obj)
             }
             else
