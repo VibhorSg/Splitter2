@@ -104,6 +104,17 @@ export class SenderComponent {
   getCurrentAccount()
   {
     this.contractService.updateAccounts()
+    if(this.eventSplitFunds == undefined)
+    {
+      console.log('Please select sender to initialise event watcher')
+
+    }
+    else
+    {
+      console.log('Stop watching ')
+      console.log(this.eventSplitFunds)
+      this.eventSplitFunds.stopWatching()
+    }
   }
 
   updateDataTable(obj) {
